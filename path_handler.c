@@ -8,39 +8,40 @@
 */
 char *search_path(char *cmd)
 {
-	char *path_var = NULL;
-	char *path_copy = NULL;
-	char *dir = NULL;
+	char *path_var = _getenv("PATH");
+	char *path_copy;
+	char *dir;
 	char *executable_path = NULL;
 	char *temp;
 
-	path_var = _getenv("PATH");
 	if (!path_var || _strlen(path_var) == 0)
 		return (NULL);
 	path_copy = _strdup(path_var);
 	dir = _strtok(path_copy, ":");
-	executable_path = malloc(512); /* assuming max length */
 
 	while (dir)
 	{
-		temp = _strcat(dir, "/");
-		_strcat(temp, cmd);
-
-		if (_strlen(temp) < 512)
-			_strcpy(executable_path, temp);
-
-		/*  Check if the command exists and is executable in the current 'dir' */
-		if (access(executable_path, X_OK) == 0)
+		temp = malloc(_strlen(dir) + _strlen(cmd) + 2);
+		if (!temp)
 		{
 			free(path_copy);
-			return (executable_path); /* Found the executable in PATH */
+			return (NULL);
 		}
 
+		_strcpy(temp, dir);
+		_strcat(temp, "/");
+		_strcat(temp, cmd);
+
+		if (access(temp, X_OK) == 0)
+		{
+			executable_path = temp;
+			break;
+		}
+
+		free(temp); /* Free memory if command is not found in current directory */
 		dir = _strtok(NULL, ":");
 	}
 
 	free(path_copy);
-	free(executable_path);
-	return (NULL); /* Command not found in PATH */
+	return (executable_path);
 }
-
