@@ -11,7 +11,7 @@ char *read_line(void)
 	size_t len = 0;
 	ssize_t read_status;
 
-	read_status = getline(&line, &len, stdin);
+	read_status = _getline(&line, &len, stdin);
 	if (read_status == -1)
 	{
 		free(line);
