@@ -28,6 +28,7 @@ char *search_path(char *cmd)
 			return (NULL);
 		}
 
+		_memset(temp, 0, _strlen(dir) + _strlen(cmd) + 2);
 		_strcpy(temp, dir);
 		_strcat(temp, "/");
 		_strcat(temp, cmd);
