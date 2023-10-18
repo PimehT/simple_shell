@@ -11,34 +11,34 @@ int execute(char **args)
 	pid_t pid;
 	int wstatus, status = handle_builtins(args);
 	char *executable_path;
+	struct stat st;
 
 	if (status != -1)
 		return (status);
 
-	if (access(args[0], X_OK) != 0)
+	if (stat(args[0], &st) == 0 && (st.st_mode & S_IXUSR))
+		executable_path = args[0];
+	else
 	{
 		executable_path = search_path(args[0]);
 		if (!executable_path)
 		{
-			handle_command_error(args[0], args[0]);
-			return (127);  /* 127 is commonly used for "command not found" */
+			status = handle_command_error(args[0], args[0], ENOENT);
+			return (status);
 		}
 	}
-	else
-		executable_path = args[0];
 
 	pid = fork();
 	if (pid == 0)
 	{
 		execve(executable_path, args, environ);
-		handle_command_error(args[0], args[0]);
-	}
-	else if (pid < 0)
+		status = handle_command_error(args[0], args[0], 0);
+		exit(status);
+	} else if (pid < 0)
 	{
 		perror("Error forking");
 		exit(EXIT_FAILURE);
-	}
-	else
+	} else
 	{
 		waitpid(pid, &wstatus, 0);
 		status = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : -1;
@@ -49,6 +49,7 @@ int execute(char **args)
 
 	return (status);
 }
+
 /**
  * handle_builtins - handle command if it is a builtin commadn
  * @args: input arguments

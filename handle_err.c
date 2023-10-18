@@ -40,29 +40,36 @@ void print_err(char *shell_name, int line_num, char *err)
 }
 
 /**
- * handle_command_error - print the errno message and exit errno number
+ * handle_command_error - print the error message based on the given error code
  * @prog_name: ./hsh
  * @command: command with error
+ * @error_code: specific error code (if set, use this over errno)
  *
- * Return: void
-*/
-void handle_command_error(char *prog_name, char *command)
+ * Return: the exit status associated with the error
+ */
+int handle_command_error(char *prog_name, char *command, int error_code)
 {
-	if (errno == ENOENT)
+	int exit_status = EXIT_FAILURE;
+
+	if (error_code == 0)
+		error_code = errno;
+
+	switch (error_code)
 	{
-		fprintf(stderr, "%s: %s: command not found\n", prog_name, command);
-		exit(127);
+		case ENOENT:
+			fprintf(stderr, "%s: %s: command not found\n", prog_name, command);
+			exit_status = 127;
+			break;
+		case EACCES:
+			fprintf(stderr, "%s: %s: Permission denied\n", prog_name, command);
+			exit_status = 126;
+			break;
+		default:
+			perror(prog_name);
+			break;
 	}
-	else if (errno == EACCES)
-	{
-		fprintf(stderr, "%s: %s: Permission denied\n", prog_name, command);
-		exit(126);
-	}
-	else
-	{
-		perror(prog_name);
-		exit(EXIT_FAILURE);
-	}
+
+	return (exit_status);
 }
 
 /**

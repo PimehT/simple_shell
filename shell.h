@@ -67,7 +67,7 @@ int _atoi(char *s);
 
 void handle_error(char *err);
 void print_err(char *shell_name, int line_num, char *err);
-void handle_command_error(char *prog_name, char *command);
+int handle_command_error(char *prog_name, char *command, int error_code);
 void custom_error(const char *prog_name, const char *command,
 		const char *message);
 
