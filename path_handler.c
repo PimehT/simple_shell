@@ -8,11 +8,18 @@
 */
 char *search_path(char *cmd)
 {
-	char *path_var = _getenv("PATH");
-	char *path_copy = _strdup(path_var);
-	char *dir = _strtok(path_copy, ":");
-	char *executable_path = malloc(512); /* assuming a max path length */
+	char *path_var = NULL;
+	char *path_copy = NULL;
+	char *dir = NULL;
+	char *executable_path = NULL;
 	char *temp;
+
+	path_var = _getenv("PATH");
+	if (!path_var || _strlen(path_var) == 0)
+		return (NULL);
+	path_copy = _strdup(path_var);
+	dir = _strtok(path_copy, ":");
+	executable_path = malloc(512); /* assuming max length */
 
 	while (dir)
 	{

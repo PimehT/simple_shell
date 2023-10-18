@@ -14,39 +14,39 @@ int execute(char **args)
 
 	if (status != -1)
 		return (status);
+
+	if (access(args[0], X_OK) != 0)
+	{
+		executable_path = search_path(args[0]);
+		if (!executable_path)
+		{
+			handle_command_error(args[0], args[0]);
+			return (127);  /* 127 is commonly used for "command not found" */
+		}
+	}
+	else
+		executable_path = args[0];
+
 	pid = fork();
 	if (pid == 0)
 	{
-		if (access(args[0], X_OK) != 0)
-		{
-			executable_path = search_path(args[0]);
-			if (executable_path)
-			{
-				execve(executable_path, args, environ);
-				free(executable_path);
-			}
-			else
-			{
-				handle_command_error("./hsh", args[0]);
-			}
-		}
-		else
-		{
-			execve(args[0], args, environ);
-		}
+		execve(executable_path, args, environ);
+		handle_command_error(args[0], args[0]);
 	}
 	else if (pid < 0)
 	{
-		/* Forking error */
 		perror("Error forking");
 		exit(EXIT_FAILURE);
 	}
 	else
 	{
-		/* Parent process */
 		waitpid(pid, &wstatus, 0);
 		status = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : -1;
 	}
+
+	if (executable_path != args[0])
+		free(executable_path);  /* Only free if we allocated new memory */
+
 	return (status);
 }
 /**
