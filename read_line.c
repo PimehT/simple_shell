@@ -30,39 +30,44 @@ char *read_line(void)
 */
 ssize_t _getline(char **lineptr, size_t *n, FILE *stream)
 {
-	const size_t initial_size = 100;
-	char ch;
-	char *tmp = NULL;
-	size_t idx = 0;
+	char *bufptr = NULL;
+	char *p = NULL;
+	size_t size;
+	int c;
 
-	if (!*lineptr)
-	{
-		*lineptr = malloc(initial_size);
-		if (!*lineptr)
-			return (-1);
-		*n = initial_size;
-	}
-
-	while ((ch = _fgetc(stream)) != EOF && ch != '\n')
-	{
-		(*lineptr)[idx++] = ch;
-		if (idx == *n)
-		{
-			tmp = _realloc(*lineptr, *n * 2);
-			if (!tmp)
-			{
-				free(*lineptr);
-				return (-1);
-			}
-			*lineptr = tmp;
-			*n *= 2;
-		}
-	}
-
-	if (idx == 0 && ch == EOF)
+	if (lineptr == NULL || stream == NULL || n == NULL)
 		return (-1);
 
-	(*lineptr)[idx] = '\0';
+	bufptr = *lineptr;
+	size = *n;
+	c = _fgetc(stream);
+	if (c == EOF)
+		return (-1);
+	if (bufptr == NULL)
+	{
+		bufptr = malloc(128);
+		if (bufptr == NULL)
+			return (-1);
+		size = 128;
+	}
+	p = bufptr;
+	while (c != EOF)
+	{
+		if ((size_t)(p - bufptr) >= (size - 1))
+		{
+			size = size + 128;
+			bufptr = _realloc(bufptr, size);
+			if (bufptr == NULL)
+				return (-1);
+		}
+		*p++ = c;
+		if (c == '\n')
+			break;
+		c = _fgetc(stream);
+	}
+	*p++ = '\0';
+	*lineptr = bufptr;
+	*n = size;
 
-	return (idx);
+	return (p - bufptr - 1);
 }
