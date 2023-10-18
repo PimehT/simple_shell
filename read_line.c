@@ -11,7 +11,7 @@ char *read_line(void)
 	size_t len = 0;
 	ssize_t read_status;
 
-	read_status = getline(&line, &len, stdin);
+	read_status = _getline(&line, &len, stdin);
 	if (read_status == -1)
 	{
 		free(line);
@@ -28,46 +28,39 @@ char *read_line(void)
  *
  * Return: size of input on success, otherwise -1
 */
+
 ssize_t _getline(char **lineptr, size_t *n, FILE *stream)
 {
-	char *bufptr = NULL;
-	char *p = NULL;
-	size_t size;
-	int c;
+	char *bufptr = *lineptr, *p;
+	size_t size = *n;
+	int c = _fgetc(stream);
 
-	if (lineptr == NULL || stream == NULL || n == NULL)
+	if (!lineptr || !stream || !n || c == EOF)
 		return (-1);
-
-	bufptr = *lineptr;
-	size = *n;
-	c = _fgetc(stream);
-	if (c == EOF)
-		return (-1);
-	if (bufptr == NULL)
+	if (!bufptr)
 	{
 		bufptr = malloc(128);
-		if (bufptr == NULL)
+		if (!bufptr)
 			return (-1);
 		size = 128;
 	}
-	p = bufptr;
-	while (c != EOF)
+
+	for (p = bufptr; c != EOF; c = _fgetc(stream))
 	{
 		if ((size_t)(p - bufptr) >= (size - 1))
 		{
-			size = size + 128;
+			size += 128;
 			bufptr = _realloc(bufptr, size);
-			if (bufptr == NULL)
+			if (!bufptr)
 				return (-1);
 		}
 		*p++ = c;
 		if (c == '\n')
 			break;
-		c = _fgetc(stream);
 	}
-	*p++ = '\0';
+
+	*p = '\0';
 	*lineptr = bufptr;
 	*n = size;
-
-	return (p - bufptr - 1);
+	return ((c == EOF && p == bufptr) ? -1 : (p - bufptr));
 }
