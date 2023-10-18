@@ -48,17 +48,17 @@ void print_err(char *shell_name, int line_num, char *err)
 */
 void handle_command_error(char *prog_name, char *command)
 {
-	if (errno == ENOENT) 
+	if (errno == ENOENT)
 	{
 		fprintf(stderr, "%s: %s: command not found\n", prog_name, command);
 		exit(127);
-	} 
+	}
 	else if (errno == EACCES)
 	{
 		fprintf(stderr, "%s: %s: Permission denied\n", prog_name, command);
 		exit(126);
-	} 
-	else 
+	}
+	else
 	{
 		perror(prog_name);
 		exit(EXIT_FAILURE);
