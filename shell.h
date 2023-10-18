@@ -53,7 +53,7 @@ char *_strchr(const char *s, char c);
 int _strcmp(const char *s1, const char *s2);
 char *_strncpy(char *dest, char *src, int n);
 char *_memcpy(char *dest, char *src, unsigned int n);
-void *_realloc(void *ptr, unsigned int new_size);
+void *_realloc(void *ptr, size_t new_size);
 int _putchar(char c);
 int _strlen(const char *s);
 char *_strcat(char *dest, const char *src);

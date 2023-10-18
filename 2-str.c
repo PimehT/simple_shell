@@ -89,21 +89,30 @@ char *_memcpy(char *dest, char *src, unsigned int n)
 *
 * Return: pointer to the new block
 */
-void *_realloc(void *ptr, unsigned int new_size)
+void *_realloc(void *ptr, size_t new_size)
 {
-	void *new_p = malloc(new_size);
-
-	if (new_p == NULL)
+	if (ptr == NULL)
 	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
+		return (malloc(new_size));
 	}
-
-	if (ptr != NULL)
+	else if (new_size == 0)
 	{
-		_memcpy(new_p, ptr, new_size);
 		free(ptr);
+		return (NULL);
 	}
+	else
+	{
+		void *new_ptr = malloc(new_size);
 
-	return (new_p);
+		if (new_ptr == NULL)
+		{
+			return (NULL);
+		}
+		else
+		{
+			_memcpy(new_ptr, ptr, new_size);
+			free(ptr);
+			return (new_ptr);
+		}
+	}
 }
